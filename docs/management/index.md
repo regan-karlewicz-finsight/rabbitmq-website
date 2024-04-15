@@ -55,6 +55,7 @@ This guide covers:
  * [HTTP API request logging](#http-logging)
  * How to set a [management UI login session timeout](#login-session-timeout)
  * How to [reset statistics database](#reset-stats) used by this plugin
+ * [Troubleshooting](#trouble-shooting)
 
 The plugin also provides extension points that other plugins, such as
 [rabbitmq-top](https://github.com/rabbitmq/rabbitmq-top) or
@@ -1232,6 +1233,23 @@ DELETE /api/reset
 ```bash
 rabbitmqctl eval 'rabbit_mgmt_storage:reset_all().'
 ```
+
+## Troubleshooting {#troubleshooting}
+
+### OpenId Discovery endpoint not reachable
+
+You go to the management ui root url and you see the following error message in the web page 
+rather than the button "Click here to login".
+
+```
+OAuth resource [rabbitmq] not available. OpenId Discovery endpoint https://<the_issuer_url>/.well-known/openid-configuration not reachable
+```
+
+These are the possible reasons for that error message:
+- The browser cannot physyically open a http/tcp connection with the OpenId Discover endpoint. Copy and paste the url in the error message into the browser and see if you can get a reply
+- If you cannot get a reply then investigate whether the OpenId Discovery endpoint is running at all and/or whether there is any firewall which may be preventing access to it
+- If you can get a reply then check the browser's console and see if there is an error similar to this one: `Access to fetch at 'https://<the_issuer_url>>/.well-known/openid-configuration' from origin 
+'<rabbitmq_url_to_management_ui>' has been blocked by CORS policy`. If you see this error it means that the browser is blocking the response and not delivering to the management ui due to [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) policy. This means that you have to contact the administrator of your Identity Provider and add the RabbitMQ management ui's url to the allowed Origins. 
 
 
 ## Memory Usage Analysis and Memory Management {#memory}
