@@ -55,7 +55,7 @@ This guide covers:
  * [HTTP API request logging](#http-logging)
  * How to set a [management UI login session timeout](#login-session-timeout)
  * How to [reset statistics database](#reset-stats) used by this plugin
- * [Troubleshooting](#trouble-shooting)
+ * [Troubleshooting](#troubleshooting)
 
 The plugin also provides extension points that other plugins, such as
 [rabbitmq-top](https://github.com/rabbitmq/rabbitmq-top) or
@@ -1236,20 +1236,51 @@ rabbitmqctl eval 'rabbit_mgmt_storage:reset_all().'
 
 ## Troubleshooting {#troubleshooting}
 
-### OpenId Discovery endpoint not reachable
+### OpenId Discovery endpoint not reachable {#openid-Discovery-endpoint-not-reachable}
 
-You go to the management ui root url and you see the following error message in the web page 
-rather than the button "Click here to login".
+#### Steps to reproduce the issue
+
+Open the root url of the management ui in the browser, not authenticated yet. 
+Rather than getting the button "Click here to login" you see the following error message:
 
 ```
 OAuth resource [rabbitmq] not available. OpenId Discovery endpoint https://<the_issuer_url>/.well-known/openid-configuration not reachable
 ```
 
-These are the possible reasons for that error message:
-- The browser cannot physyically open a http/tcp connection with the OpenId Discover endpoint. Copy and paste the url in the error message into the browser and see if you can get a reply
-- If you cannot get a reply then investigate whether the OpenId Discovery endpoint is running at all and/or whether there is any firewall which may be preventing access to it
-- If you can get a reply then check the browser's console and see if there is an error similar to this one: `Access to fetch at 'https://<the_issuer_url>>/.well-known/openid-configuration' from origin 
-'<rabbitmq_url_to_management_ui>' has been blocked by CORS policy`. If you see this error it means that the browser is blocking the response and not delivering to the management ui due to [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) policy. This means that you have to contact the administrator of your Identity Provider and add the RabbitMQ management ui's url to the allowed Origins. 
+#### Troubleshoot the issue
+
+These are the most common reasons this issue ocurrs:
+- The browser cannot physyically open a http connection with the OpenId Discovery endpoint. Copy and paste the url in the error message into the browser and see if you can get a reply.
+- If you cannot get a reply then investigate whether the OpenId Discovery endpoint is running at all and/or whether there is any firewall which blocking the access.
+- If you can get a reply then check the browser's console and see if there is an error similar to this one: 
+
+  `Access to fetch at 'https://<the_issuer_url>>/.well-known/openid-configuration' from origin 
+  '<rabbitmq_url_to_management_ui>' has been blocked by CORS policy`. 
+
+  This error means that the browser is blocking the response and therefore it is not delivering it to the management ui. This is due to the [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) policy. You should ask the administrator of your Identity Provider to add the RabbitMQ management ui's url to the list of allowed **origins**. 
+
+
+### Unauthorized {#unauthorized}
+
+#### Steps to reproduce the issue
+
+Open the root url of the management ui in the browser, click on the buttoh "Click here to logon" and enter the credentials requested by your Identity Provider. You are redirected back to the management ui with the following error:
+
+```
+Unauthorized
+```
+
+#### Troubleshoot the issue
+
+The issue here is rather simple: The token does not have enough scopes or permissions to access the management ui. You need at least one of these scopes or the equivalent scope:
+- `rabbitmq.tag:administrator`
+- `rabbitmq.tag:management`
+- `rabbitmq.tag:monitoring`
+- `rabbitmq.tag:policymaker`
+
+To find out the scopes in a token you have to use a browser's developer tool. You have to inspect the content of the Local Storage. Look for the entry "TODO" , copy its value and go to https://jwt.io and paste the clipboard into *Encoded* text field. The *Decode* text field has the token's header and payload. Search for the token attribute `scope` in the tokens' payload or for the name configured `auth_oauth2.additional_scopes_key`.
+
+You have to take into account `auth_oauth2.scope_prefix` and any scope aliases you have configured. If you set `auth_oauth2.scope_prefix` to `myprefix_` you have to search for scopes like `myprefix_tag:administrator`. Likewise, if you configured scope aliases you have to search for those aliases that maps to of the scopes listed above.
 
 
 ## Memory Usage Analysis and Memory Management {#memory}
