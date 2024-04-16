@@ -1259,28 +1259,57 @@ These are the most common reasons this issue ocurrs:
 
   This error means that the browser is blocking the response and therefore it is not delivering it to the management ui. This is due to the [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) policy. You should ask the administrator of your Identity Provider to add the RabbitMQ management ui's url to the list of allowed **origins**. 
 
+### OpenId Discovery endpoint not compliant {#openid-Discovery-endpoint-not-compliant}
 
-### Unauthorized {#unauthorized}
+#### Steps to reproduce the issue
+
+Open the root url of the management ui in the browser, not authenticated yet. 
+Rather than getting the button "Click here to login" you see the following error message:
+
+```
+OAuth resource [rabbitmq] not available. OpenId Discovery endpoint https://<the_issuer_url>/.well-known/openid-configuration not compliant
+```
+
+#### Troubleshoot the issue
+
+This issue is caused when the endpoint is not returning a JSON payload which matches with the [OpenId Connect Discovery Configuration](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig). 
+There are two possible causes:
+- The Identity Provider is not compliant with OpenId Connect 
+- The url is wrong. Check out with your administrator of your Identity Provider to get the correct url to the OpenId Connect Discovery endpoint
+
+
+### Not authorized {#not-authorized}
 
 #### Steps to reproduce the issue
 
 Open the root url of the management ui in the browser, click on the buttoh "Click here to logon" and enter the credentials requested by your Identity Provider. You are redirected back to the management ui with the following error:
 
 ```
-Unauthorized
+Not authorized
 ```
 
 #### Troubleshoot the issue
 
-The issue here is rather simple: The token does not have enough scopes or permissions to access the management ui. You need at least one of these scopes or the equivalent scope:
+This issue occurs when the token does not have enough scopes or permissions to access the management ui. You need at least one of these scopes or the equivalent scope:
 - `rabbitmq.tag:administrator`
 - `rabbitmq.tag:management`
 - `rabbitmq.tag:monitoring`
 - `rabbitmq.tag:policymaker`
 
-To find out the scopes in a token you have to use a browser's developer tool. You have to inspect the content of the Local Storage. Look for the entry "TODO" , copy its value and go to https://jwt.io and paste the clipboard into *Encoded* text field. The *Decode* text field has the token's header and payload. Search for the token attribute `scope` in the tokens' payload or for the name configured `auth_oauth2.additional_scopes_key`.
+Follow the following steps to find out which scopes or permissions are carried in the token:
+1. Open your browwser's developer tool (e.g. in Chrome or Firefox, right-click on the page and click on *Inspect* menu option)
+2. Go to the tab *Application*
+3. Select the option *Storage* > *Local Storage* in the left panel 
+4. Click on the tree option which matches the URL of the management ui 
+5. Select the Key *rabbitmq.credentials* in the right panel
+6. Copy its value 
+7. Go to the url https://jwt.io
+8. Paste the value into the text field *Encoded*
+9. Look at the payload's text field *Decoded* 
 
-You have to take into account `auth_oauth2.scope_prefix` and any scope aliases you have configured. If you set `auth_oauth2.scope_prefix` to `myprefix_` you have to search for scopes like `myprefix_tag:administrator`. Likewise, if you configured scope aliases you have to search for those aliases that maps to of the scopes listed above.
+On the token's payload, search for the token attribute `scope` in the tokens' payload or for the value configured in `auth_oauth2.additional_scopes_key`, if any. 
+
+Once you find the appropriate token's scope attribute, find within the attribute's value any of the scopes listed above. Please, take into account if you have configured [auth_oauth2.scope_prefix](https://www.rabbitmq.com/docs/oauth2#scope-prefix). If you did, the scopes will be namned like  `myprefix_tag:administrator`. If you instead configured [scope aliases](https://www.rabbitmq.com/docs/oauth2-examples#use-scope-aliases), you need to find the scope alias that maps to one of the scopes listed above. 
 
 
 ## Memory Usage Analysis and Memory Management {#memory}
