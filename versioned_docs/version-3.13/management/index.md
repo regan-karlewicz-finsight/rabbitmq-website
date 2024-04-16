@@ -1347,7 +1347,7 @@ This issue occurs when the token does not have enough scopes or permissions to a
 - `rabbitmq.tag:monitoring`
 - `rabbitmq.tag:policymaker`
 
-Follow the following steps to find out which scopes or permissions are carried in the token:
+Follow these steps to find out which scopes or permissions are carried in the token:
 1. Open your browwser's developer tool (e.g. in Chrome or Firefox, right-click on the page and click on *Inspect* menu option)
 2. Go to the tab *Application*
 3. Select the option *Storage* > *Local Storage* in the left panel 
