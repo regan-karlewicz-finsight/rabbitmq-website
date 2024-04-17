@@ -455,7 +455,7 @@ management.oauth_provider_url = https://my-web-portal
 With the previous settings, the management UI exposes the HTTP endpoint `/login` which accepts `content-type: application/x-www-form-urlencoded` and it expects the JWT token in the `access_token` form field. This is the endpoint where the Web portal will redirect users to the management UI.
 Additionally, RabbitMQ also accepts a JWT token in the HTTP `Authorization` header when the user lands on the management UI.
 
-With `sp_initiated` logon types, there is no need to configure the `oauth_provider_url` if `auth_oauth2.issuer` was set. However, for `idp_initiated` flows the `auth_oauth2.issuer` url may not necessarily be the url where to send users to authenticate. When this occurs, the `management.oauth_provider_url` overrides the `auth_oauth2.issuer` url.
+With `sp_initiated` logon types, there is no need to configure the `oauth_provider_url` if `auth_oauth2.issuer` was set. However, for `idp_initiated` flows the `auth_oauth2.issuer` URL may not necessarily be the URL where to send users to authenticate. When this occurs, the `management.oauth_provider_url` overrides the `auth_oauth2.issuer` URL.
 
 ### Support multiple OAuth 2.0 resources {#support-multiple-resources}
 
@@ -1291,7 +1291,7 @@ all nodes in the cluster.
 
 #### Steps to reproduce the issue
 
-Open the root url of the management UI in the browser, not authenticated yet. 
+Open the root URL of the management UI in the browser, not authenticated yet. 
 Rather than getting the button "Click here to login" you see the following error message:
 
 ```
@@ -1301,20 +1301,20 @@ OAuth resource [rabbitmq] not available. OpenId Discovery endpoint https://<the_
 #### Troubleshoot the issue
 
 These are the most common reasons this issue occurs:
-- The browser cannot physyically open a http connection with the OpenId Connect Discovery endpoint. Copy and paste the url in the error message into the browser and see if you can get a reply.
+- The browser cannot physyically open a http connection with the OpenId Connect Discovery endpoint. Copy and paste the URL in the error message into the browser and see if you can get a reply.
 - If you cannot get a reply then investigate whether the OpenId Connect Discovery endpoint is running at all and/or whether there is any firewall which blocks the access.
 - If you can get a reply then check the browser's console and see if there is an error similar to this one: 
 
   `Access to fetch at 'https://<the_issuer_url>>/.well-known/openid-configuration' from origin 
   '<rabbitmq_url_to_management_ui>' has been blocked by CORS policy`. 
 
-  This error means that the browser is blocking the response and therefore it is not delivering it to the management ui. This is due to the [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) policy. You should ask the administrator of your Identity Provider to add the RabbitMQ management ui's url to the list of allowed **origins**. 
+  This error means that the browser is blocking the response and therefore it is not delivering it to the management ui. This is due to the [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) policy. You should ask the administrator of your Identity Provider to add the RabbitMQ management UI's URL to the list of allowed **origins**. 
 
 ### OpenId Discovery endpoint not compliant {#openid-Discovery-endpoint-not-compliant}
 
 #### Steps to reproduce the issue
 
-Open the root url of the management UI in the browser, not authenticated yet. 
+Open the root URL of the management UI in the browser, not authenticated yet. 
 Rather than getting the button "Click here to login" you see the following error message:
 
 ```
@@ -1326,14 +1326,14 @@ OAuth resource [rabbitmq] not available. OpenId Discovery endpoint https://<the_
 This issue is caused when the endpoint is not returning a JSON payload which matches with the [OpenId Connect Discovery Configuration](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig). 
 There are two possible causes:
 - The Identity Provider is not compliant with OpenId Connect 
-- The url is wrong. Check out with your administrator of your Identity Provider to get the correct url to the OpenId Connect Discovery endpoint
+- The URL is wrong. Check out with your administrator of your Identity Provider to get the correct URL to the OpenId Connect Discovery endpoint
 
 
 ### Not authorized {#not-authorized}
 
 #### Steps to reproduce the issue
 
-Open the root url of the management UI in the browser, click on the buttoh "Click here to logon" and enter the credentials requested by your Identity Provider. You are redirected back to the management UI with the following error:
+Open the root URL of the management UI in the browser, click on the buttoh "Click here to logon" and enter the credentials requested by your Identity Provider. You are redirected back to the management UI with the following error:
 
 ```
 Not authorized
@@ -1354,7 +1354,7 @@ Follow these steps to find out which scopes or permissions are carried in the to
 4. Click on the tree option which matches the URL of the management UI 
 5. Select the Key *rabbitmq.credentials* in the right panel
 6. Copy its value 
-7. Go to the url https://jwt.io
+7. Go to the URL https://jwt.io
 8. Paste the value into the text field *Encoded*
 9. Look at the payload's text field *Decoded* 
 10. Search for the token attribute `scope` in the tokens' payload or for the value configured in `auth_oauth2.additional_scopes_key`, if any. 
