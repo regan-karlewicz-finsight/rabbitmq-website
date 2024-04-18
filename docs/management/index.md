@@ -1249,15 +1249,20 @@ OAuth resource [rabbitmq] not available. OpenId Discovery endpoint https://<the_
 
 #### Troubleshoot the issue
 
-These are the most common reasons this issue occurs:
-- The browser cannot physyically open a http connection with the OpenId Connect Discovery endpoint. Copy and paste the URL in the error message into the browser and see if you can get a reply.
-- If you cannot get a reply then investigate whether the OpenId Connect Discovery endpoint is running at all and/or whether there is any firewall which blocks the access.
-- If you can get a reply then check the browser's console and see if there is an error similar to this one: 
+These are the most common reasons for this issue:
+- The endpoint is either down or is not reachable (e.g. there is a firewall which blocks access).
+- The endpoint has a SSL certificate not trusted by the browser. 
+- The browser is blocking access due to [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) policy.
+
+The quickest way to identity the root cause is by opening the browser's javascript console and searching for `net::ERR_`. These are the two possible errors you may find:
+- `net::ERR_CONNECTION_REFUSED` The endpoint is down or is not reachable. 
+- `net::ERR_CERT_AUTHORITY_INVALID` The endpoint's SSL Certificate is not trusted by your browser. If you want to trust this certificate, click on the URL in the error message. The browser will prompt you to trust it. 
+
+If you did not find any errors searching for `net::ERR` search instead for `CORS`. If you find an error similar to the one shown below, the browser is blocking the response returned by the endpoint and therefore it is not being delivered it to the management ui. This is due to the [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) policy. You should ask the administrator of your Identity Provider to add the management UI's URL to the list of allowed **origins**.  
 
   `Access to fetch at 'https://<the_issuer_url>>/.well-known/openid-configuration' from origin 
   '<rabbitmq_url_to_management_ui>' has been blocked by CORS policy`. 
 
-  This error means that the browser is blocking the response and therefore it is not delivering it to the management ui. This is due to the [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) policy. You should ask the administrator of your Identity Provider to add the RabbitMQ management UI's URL to the list of allowed **origins**. 
 
 ### OpenId Discovery endpoint not compliant {#openid-Discovery-endpoint-not-compliant}
 
